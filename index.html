@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Poker Panel PRO</title>
+</head>
+<body>
+<main>
+  <!-- Aquí va todo tu HTML del panel tal como lo tenías -->
+  <h1>Poker Panel PRO</h1>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// ========= Sheets Endpoint =========
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbyQWyAdBoEQ5PVCB1EEiusKSejXQf8Ua9cG23z1VWcdCrOSGZtjglnMQPTRiEU6BECl1w/exec";
+
+function sendToSheets(payload) {
+  const body = new URLSearchParams({ data: JSON.stringify(payload) });
+  fetch(ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body
+  })
+  .then(r => r.text())
+  .then(t => console.log("Sheets OK:", t))
+  .catch(e => console.error("Sheets error:", e));
+}
+
+// ========= Storage =========
+function saveData(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
+function loadData(key) { return JSON.parse(localStorage.getItem(key) || '[]'); }
+
+// ========= Forms =========
+document.getElementById('bb_form')?.addEventListener('submit', function(e){
+  e.preventDefault();
+  const row=Object.fromEntries(new FormData(e.target).entries());
+  const arr=loadData('badbits'); arr.push(row);
+  saveData('badbits',arr); sendToSheets(Object.assign({tipo:'BadBit'}, row));
+  e.target.reset(); updateAll();
+});
+document.getElementById('fp_form')?.addEventListener('submit', function(e){
+  e.preventDefault();
+  const row=Object.fromEntries(new FormData(e.target).entries());
+  const arr=loadData('flips'); arr.push(row);
+  saveData('flips',arr); sendToSheets(Object.assign({tipo:'Flip'}, row));
+  e.target.reset(); updateAll();
+});
+document.getElementById('tr_form')?.addEventListener('submit', function(e){
+  e.preventDefault();
+  const row=Object.fromEntries(new FormData(e.target).entries());
+  const arr=loadData('torneos'); arr.push(row);
+  saveData('torneos',arr); sendToSheets(Object.assign({tipo:'Torneo'}, row));
+  e.target.reset(); updateAll();
+});
+
+// ========= Update All =========
+function updateAll(){
+  console.log("UpdateAll ejecutado");
+}
+updateAll();
+</script>
+</body>
+</html>
